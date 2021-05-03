@@ -83,7 +83,7 @@ class UpdateCheckerJob(Job):
                                     continue  # Don't show this update again. The user already clicked it away and doesn't want it again.
                                 preferences.setValue("info/latest_update_version_shown", str(newest_version))
                                 Logger.log("i", "Found a new version of the software. Spawning message")
-                                self.showUpdate(newest_version, value["url"])
+                                # self.showUpdate(newest_version, value["url"])
                                 no_new_version = False
                                 break
                     else:
