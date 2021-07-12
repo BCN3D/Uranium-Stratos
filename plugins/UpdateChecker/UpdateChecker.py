@@ -16,7 +16,7 @@ i18n_catalog = i18nCatalog("uranium")
 class UpdateChecker(Extension):
     """This Extension checks for new versions of the application based on the application name and the version number.
 
-    The plugin is currently only usable for applications maintained by Ultimaker. But it should be relatively easy
+    The plugin is currently only usable for applications maintained by BCN3D. But it should be relatively easy
     to change it to work for other applications.
     """
     url = "http://api.github.com/repos/bcn3d/stratos/releases/latest"
@@ -36,7 +36,7 @@ class UpdateChecker(Extension):
         Application.getInstance().getPreferences().addPreference("info/latest_update_version_shown", "0.0.0")
 
     def checkNewVersion(self, silent = False, display_same_version = True):
-        """Connect with software.ultimaker.com, load latest.json and check version info.
+        """
 
         If the version info is higher then the current version, spawn a message to
         allow the user to download it.
