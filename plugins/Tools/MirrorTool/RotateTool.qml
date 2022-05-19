@@ -17,7 +17,6 @@ Item
     height: childrenRect.height
 
 
-    property var extrudersModel: CuraApplication.getExtrudersModel()
     UM.I18nCatalog { id: catalog; name: "cura"}
 
     Column
@@ -30,7 +29,7 @@ Item
 
         Label
         {
-            id: panelLabel
+            id: mirrorModelLabel
             text: catalog.i18nc("@info:tooltip", "Mirror Model")
             font: UM.Theme.getFont("default")
             color: UM.Theme.getColor("text")
