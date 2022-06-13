@@ -333,7 +333,7 @@ class ShaderProgram:
             self._shader_program.setUniformValue(uniform, self._matrixToQMatrix4x4(value))
         elif type(value) is Color:
             self._shader_program.setUniformValue(uniform,
-                QColor(value.r * 255, value.g * 255, value.b * 255, value.a * 255))
+                QColor(int(value.r * 255), int(value.g * 255), int(value.b * 255), int(value.a * 255)))
         elif type(value) is list and type(value[0]) is list and len(value[0]) == 4:
             self._shader_program.setUniformValue(uniform, self._matrixToQMatrix4x4(Matrix(value)))
         elif type(value) is list and len(value) == 2:
