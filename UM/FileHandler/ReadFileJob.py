@@ -75,7 +75,21 @@ class ReadFileJob(Job):
                 result_message = Message(i18n_catalog.i18nc("@info:status Don't translate the XML tag <filename>!", "Failed to load <filename>{0}</filename>. The file could be corrupt or inaccessible.", self._filename), lifetime = 0, title = i18n_catalog.i18nc("@info:title", "Unable to Open File"))
                 result_message.show()
                 return
-            mode = UM.Application.Application.getInstance()._print_mode_3mf
-            UM.Application.Application.getInstance().getGlobalContainerStack().setProperty("print_mode", "value", mode)
+            
+            self.setPrintMode()
             
             self._loading_message.hide()
+
+    def setPrintMode(self):
+       
+        app = UM.Application.Application.getInstance()
+        print_mode = app._print_mode_3mf
+
+        # Bugfix when a stl is imported into a dupli/mirror buildplate as a shadow
+        is_project = self._filename.lower().endswith('3mf') or self._filename.lower().endswith('amf')
+        if not is_project and (print_mode == 'mirror' or print_mode =='duplication'):
+            app.reset3MFPrintMode()
+
+        plugins = app.getPluginRegistry()
+        bcn3d_api = plugins.getPluginObject("BCN3DApi")
+        bcn3d_api.getPrintersManager().setPrintMode(app._print_mode_3mf)
