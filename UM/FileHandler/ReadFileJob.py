@@ -6,6 +6,7 @@ from UM.FileHandler.FileHandler import FileHandler
 from UM.Job import Job
 from UM.Message import Message
 from UM.Logger import Logger
+import UM.Application
 
 
 import time
@@ -74,4 +75,7 @@ class ReadFileJob(Job):
                 result_message = Message(i18n_catalog.i18nc("@info:status Don't translate the XML tag <filename>!", "Failed to load <filename>{0}</filename>. The file could be corrupt or inaccessible.", self._filename), lifetime = 0, title = i18n_catalog.i18nc("@info:title", "Unable to Open File"))
                 result_message.show()
                 return
+            mode = UM.Application.Application.getInstance()._print_mode_3mf
+            UM.Application.Application.getInstance().getGlobalContainerStack().setProperty("print_mode", "value", mode)
+            
             self._loading_message.hide()
