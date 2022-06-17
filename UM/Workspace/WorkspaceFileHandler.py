@@ -64,4 +64,4 @@ class WorkspaceFileHandler(FileHandler):
     def _applyPrintMode(self):
         app = self._application.getInstance()
         bcn3d_api = app.getPluginRegistry().getPluginObject("BCN3DApi")
-        bcn3d_api.getPrintersManager().setPrintMode(app.getPrintMode3MF())
+        bcn3d_api.getPrintersManager().setPrintMode(app.getPrintModeToLoad())
