@@ -23,6 +23,7 @@ class ReadFileJob(Job):
         self._filename = filename
         self._handler = handler
         self._loading_message = None  # type: Optional[Message]
+        self._print_mode = None
 
     def getFileName(self):
         return self._filename
@@ -76,20 +77,38 @@ class ReadFileJob(Job):
                 result_message.show()
                 return
             
-            self.setPrintMode()
-            
-            self._loading_message.hide()
 
-    def setPrintMode(self):
-       
-        app = UM.Application.Application.getInstance()
-        print_mode = app._print_mode_3mf
+            self._checkSTLScene()
 
+    def _checkSTLScene(self):
         # Bugfix when a stl is imported into a dupli/mirror buildplate as a shadow
         is_project = self._filename.lower().endswith('3mf') or self._filename.lower().endswith('amf')
-        if not is_project and (print_mode == 'mirror' or print_mode =='duplication'):
+        app = UM.Application.Application.getInstance()
+        self._print_mode = app.getPrintMode3MF()
+        
+        #STL imported into a dupli/mirror scene
+        if not is_project and (self._print_mode == 'mirror' or self._print_mode =='duplication'):
+            self._loading_message.setProgress(70)
+            
+            # Apply new print mode when render finishes
+            app.getMainWindow().renderCompleted.connect(self._applyIDEX)
+            
+            # Reset Print mode
             app.reset3MFPrintMode()
+            bcn3d_api = app.getPluginRegistry().getPluginObject("BCN3DApi")
+            bcn3d_api.getPrintersManager().setPrintMode(app.getPrintMode3MF())
+        else:
+            self._loading_message.hide()
 
-        plugins = app.getPluginRegistry()
-        bcn3d_api = plugins.getPluginObject("BCN3DApi")
+    def _applyIDEX(self, *args):
+        self._loading_message.setProgress(90)
+        self._loading_message.setText("Finishing View")
+
+        app = UM.Application.Application.getInstance()
+        app.getMainWindow().renderCompleted.disconnect(self._applyIDEX)
+
+        # Apply Dupli/mirror mode
+        app.setPrintMode3MF(self._print_mode)
+        bcn3d_api = app.getPluginRegistry().getPluginObject("BCN3DApi")
         bcn3d_api.getPrintersManager().setPrintMode(app._print_mode_3mf)
+        self._loading_message.hide()
