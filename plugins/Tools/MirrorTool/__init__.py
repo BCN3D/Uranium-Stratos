@@ -12,7 +12,7 @@ def getMetaData():
             "name": i18n_catalog.i18nc("@label", "Mirror"),
             "description": i18n_catalog.i18nc("@info:tooltip", "Mirror Model"),
             "icon": "mirror",
-            "tool_panel": "RotateTool.qml",
+            "tool_panel": "MirrorTool.qml",
             "weight": 2
         },
     }
