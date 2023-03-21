@@ -67,10 +67,13 @@ class UpdateCheckerJob(Job):
             latest_version_array = data["tag_name"].split("v")[1].split(".")
             latest_version = Version(list(map(int, latest_version_array)))
             if local_version < latest_version:
+                image_source="https://blog.bcn3d.com/hubfs/BCN3D/Knowledge%20base/Update%20Stratos%20version/Popup%20pictures/Stratos-popup-picture.png"
                 Logger.log("i", "Found a new version of the software. Spawning message")
-                message = Message(i18n_catalog.i18nc("@info", "A new version is available!"),
-                                  title=i18n_catalog.i18nc("@info:title", "Version Upgrade"))
+                message = Message(i18n_catalog.i18nc("@info", "<h3>BCN3D Stratos 1.6.2 - New version just release.</h3>  <br/> Take a quick look at the new improvements and how to update to the lastest BCN3D Stratos version.<br/><br/> Don't worry, all your custom profiles will be saved and instaled in the new version."),
+                                    title=i18n_catalog.i18nc("@info:title", ""), image_source=image_source)
+                message.addAction("open_url", i18n_catalog.i18nc("@action:button", "What is new"), "[no_icon]", "[no_description]")
                 message.addAction("download", i18n_catalog.i18nc("@action:button", "Download"), "[no_icon]", "[no_description]")
+                message.actionTriggered.connect(self._onMessageActionTriggered)
                 browser_download_url = ""
                 if self._set_download_url_callback:
                     for asset in data["assets"]:
@@ -90,3 +93,10 @@ class UpdateCheckerJob(Job):
 
         if no_new_version and not self.silent:
             Message(i18n_catalog.i18nc("@info", "No new version was found."), title = i18n_catalog.i18nc("@info:title", "Version Upgrade")).show()
+
+    def _onMessageActionTriggered(self, message, action):
+        if action == "open_url":
+            from PyQt5.QtGui import QDesktopServices
+            from PyQt5.QtCore import QUrl
+            url = "https://www.bcn3d.com/update-bcn3d-stratos"
+            QDesktopServices.openUrl(QUrl(url))
