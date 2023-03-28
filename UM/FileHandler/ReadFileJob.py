@@ -6,6 +6,7 @@ from UM.FileHandler.FileHandler import FileHandler
 from UM.Job import Job
 from UM.Message import Message
 from UM.Logger import Logger
+import UM.Application
 
 
 import time
@@ -22,6 +23,7 @@ class ReadFileJob(Job):
         self._filename = filename
         self._handler = handler
         self._loading_message = None  # type: Optional[Message]
+        self.target_print_mode = None
 
     def getFileName(self):
         return self._filename
@@ -74,4 +76,39 @@ class ReadFileJob(Job):
                 result_message = Message(i18n_catalog.i18nc("@info:status Don't translate the XML tag <filename>!", "Failed to load <filename>{0}</filename>. The file could be corrupt or inaccessible.", self._filename), lifetime = 0, title = i18n_catalog.i18nc("@info:title", "Unable to Open File"))
                 result_message.show()
                 return
+            
+
+            self._checkSTLScene()
+
+    def _checkSTLScene(self):
+        # Bugfix when a stl is imported into a dupli/mirror buildplate as a shadow
+        is_project = self._filename.lower().endswith('3mf') or self._filename.lower().endswith('amf')
+        app = UM.Application.Application.getInstance()
+        self.target_print_mode = app.getPrintModeToLoad()
+        
+        #STL imported into a dupli/mirror scene
+        if not is_project and (self.target_print_mode == 'mirror' or self.target_print_mode =='duplication'):
+            self._loading_message.setProgress(70)
+            
+            # Apply new print mode when render finishes
+            app.getMainWindow().renderCompleted.connect(self._applyIDEX)
+            
+            # Reset Print mode
+            app.reset3MFPrintMode()
+            bcn3d_api = app.getPluginRegistry().getPluginObject("BCN3DApi")
+            bcn3d_api.getPrintersManager().setPrintMode(app.getPrintModeToLoad())
+        else:
             self._loading_message.hide()
+
+    def _applyIDEX(self, *args):
+        self._loading_message.setProgress(90)
+        self._loading_message.setText("Finishing View")
+
+        app = UM.Application.Application.getInstance()
+        app.getMainWindow().renderCompleted.disconnect(self._applyIDEX)
+
+        # Apply Dupli/mirror mode
+        app.setPrintModeToLoad(self.target_print_mode)
+        bcn3d_api = app.getPluginRegistry().getPluginObject("BCN3DApi")
+        bcn3d_api.getPrintersManager().setPrintMode(app.getPrintModeToLoad())
+        self._loading_message.hide()
