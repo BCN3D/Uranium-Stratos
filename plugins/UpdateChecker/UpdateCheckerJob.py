@@ -69,9 +69,14 @@ class UpdateCheckerJob(Job):
             if local_version < latest_version:
                 image_source="https://blog.bcn3d.com/hubfs/BCN3D/Knowledge%20base/Update%20Stratos%20version/Popup%20pictures/Stratos-popup-picture.png"
                 Logger.log("i", "Found a new version of the software. Spawning message")
-                message = Message(i18n_catalog.i18nc("@info", "<h3>BCN3D Stratos 1.6.2 - New version just release.</h3>  <br/> Take a quick look at the new improvements and how to update to the lastest BCN3D Stratos version.<br/><br/> Don't worry, all your custom profiles will be saved and instaled in the new version."),
+                catalog = i18nCatalog("cura")
+                newVersionJustRelease =  catalog.i18nc("@action:label", "New version just release.")
+                takeAQuickLook =  catalog.i18nc("@action:label", "Take a quick look at the new improvements and how to update to the lastest BCN3D Stratos version.")
+                dontWorry = catalog.i18nc("@action:label", "Don't worry, all your custom profiles will be saved and instaled in the new version.")
+                text = "<h3>BCN3D Stratos " + data["tag_name"].split("v")[1] + " - " + newVersionJustRelease + "</h3>  <br/> " + takeAQuickLook + "<br/><br/> " + dontWorry
+                message = Message(text,
                                     title=i18n_catalog.i18nc("@info:title", ""), image_source=image_source)
-                message.addAction("open_url", i18n_catalog.i18nc("@action:button", "What is new"), "[no_icon]", "[no_description]")
+                message.addAction("open_url", catalog.i18nc("@action:button", "What's new"), "[no_icon]", "[no_description]")
                 message.addAction("download", i18n_catalog.i18nc("@action:button", "Download"), "[no_icon]", "[no_description]")
                 message.actionTriggered.connect(self._onMessageActionTriggered)
                 browser_download_url = ""
